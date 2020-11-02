@@ -1,85 +1,210 @@
 ---
-title: "Title of Your Report"
-author: "Names of your Group Members"
-subtitle: Gdg
-date: "Due Date"
+title: Predicting the USA 2020 Federal Election
+author: Prinsa Gandhi
+subtitle: A Generalized linear model used to determine the popular vote of the 2020 election. 
+date: November 2, 2020
 bibliography: references.bib
-output:
-  pdf_document: default
-  html_document:
-    df_print: paged
+output: pdf_document
+latex_engine: xelatex
+  
+abstract: This report will be analyzing the Democrazy Fund + UCLA nationscape "Full Data Set" to predict the popular vote of the 2020 American Federal Election with post-stratification perfomed using the American Community Surveys (ACS) data of 2018. This report will use model selecion techniques to determine a prediction model for the binary response variables *"vote_trump"* and *"vote_biden"*, and try to predict the outcome using the ACS data. The datasets have been cleaned and used for exploratory data analysis, to aid in creating the model. The results are very interesting, and it would be very interesting to compare these results to the federal election results. 
+
+
 ---
 
+### The code and data supporting this analysis is avaliable at: 
+https://github.com/username1-p/Elections-Model
+
+
+
+
 ```{r setup, include=FALSE}
+#rm(list = ls())
 library(tidyverse)
+library(glmnet)
+library(ggplot2)
+setwd("E:/sta304/ps3")
 
 # Loading in the cleaned survey Data
-survey_data <- read_csv("C:/Users/Sammi-Jo/Desktop/PS3/outputs/survey_data.csv")
+survey_data <- read_csv("survey_datafinal2.csv")
 
 # Loading in the cleaned census Data
-census_data <- read_csv("C:/Users/Sammi-Jo/Desktop/PS3/outputs/census_data.csv")
+census_data <- read_csv("census_datafinal.csv")
 
 ```
-# Introduction
-I used R to analyze this the US election (@citeR). 
-# Title of your Report
 
-## Name(s) of Author(s) 
-## Date
+
+# Introduction
+
+  I used R to perform my analysis on the survey data (@citeR). The data used to create my model is Democracy Fund + UCLA Nationscape ‘Full Data Set’ (Tausanovitch, Chris and Lynn Vavreck). This dataset had many interesting variables and information that could be used. In order to test my data and obtain my prediction result, I performed post-stratification with a data extract from IPUMS USA, with variables that I used in my model (IPUMS USA, University of Minnesota, www.ipums.org). I created a model to determine the votes for Donald Trump, and a model to obtain the votes for Joe Biden, and the results are very interesting. 
+
 
 
 # Model
 
-Here we are interested in predicting the popular vote outcome of the 2020 American federal election (include citation). To do this we are employing a post-stratification technique. In the following sub-sections I will describe the model specifics and the post-stratification calculation.
-
+In my analysis, the goal is to predict the popular vote outcome for the 2020 American Federal Election (https://www.usa.gov/voting). I will describe the model used, and the post-stratification method used in order to obtain my estimates. 
 
 ## Model Specifics
-I will (incorrectly) be using a linear regression model to model the proportion of voters who will vote for Donald Trump. This is a naive model. I will only be using age, which is recorded as a numeric variable, to model the probability of voting for Donald Trump. The simple linear regression model I am using is:
 
-$$ y = \beta_0+\beta_1  x_{age} + \epsilon$$
 
-Where $y$ represents the proportion of voters who will vote for Donald Trump. Similarly, $\beta_0$ represents the intercept of the model, and is the probability of voting for Donald Trump at age 0. Additionally, $\beta_1$ represents the slope of the model. So, for everyone one unit increase in age, we expect a $\beta_1$ increase in the probability of voting for Donald Trump.
+  The model I have chosen to use is a generalized linear model which is a binary logistic regression model. I created 2 different models, in order to predict a result for response variables *vote_trump* or *vote_biden*. I decided to choose this model because my outcome variable in the model is a binary response variable which I had given value of either 0 or 1, and thus, a logistic regression would make most sense. My binary response variable is dependent on some predictor variables which I obtained using model selection techniques. Before model selection, I determined which variables I had to use which were present in my survey data and census data, because they had to match in order to perform post-stratification. I performed both AIC and BIC model selection, and determined the most significant variables. I compared models using the ANOVA in order to determine the model with the least residuals, and to determine significant predictors one-by-one after the AIC and BIC selection techniques. The link used in this model is the logit link. The assumptions for this model are satisfied. The cases are independent in both the survey and census data, since each person was interviewed once. The dependent variable is distributed by a binomial distribution. The model I chose is shown below: 
 
-```{r, include=FALSE}
 
-# Creating the Model
-model <- glm(vote_trump ~ age , 
-            data=survey_data, family= "binomial")
+$$ logit(\pi_i) = \beta_0+\beta_1  x_{AgeGroup} + \beta_2  x_{Race} +\beta_3  x_{hispanic} +\beta_4  x_{state} +\beta_5  x_{education} +\beta_6  x_{Foreign Born} +
+\beta_7  x_{gender} $$
+
+  which is modeling $$ logit(\pi_i)$$ the log-odds of the probability of success for the response variable Y(either vote_trump or vote_biden) dependent on the explanatory variables such as gender, and the rest of the variables shown. The $\beta_0$ is the model intercept, and the $\beta_1,..,\beta_7$ are the model coefficients for each of the predictors. 
+
+
+
+```{r, echo=FALSE, include=FALSE}
+
+logmodeltrump<-glm(formula = vote_trump ~ state+ education+ foreign_born+gender+
+                       Race+hispanic+agegrp
+                     
+                     
+                     , data=survey_data, family="binomial")
+
+logmodelbiden<-glm(formula = vote_biden ~ state+ education+ foreign_born+gender+
+                       Race+hispanic+agegrp
+                     
+                     
+                     , data=survey_data, family="binomial")
 
 # Model Results (to Report in Results section)
-# summary(model)
+# summary(logmodeltrump)
+ #summary(logmodelbiden)
 # OR
-# broom::tidy(model)
+#broom::tidy(logmodeltrump)
 
 ```
 
+
 ## Post-Stratification 
 
-In order to estimate the proportion of voters who will vote for Donald Trump I need to perform a post-stratification analysis. Here I create cells based off different ages. Using the model described in the previous sub-section I will estimate the proportion of voters in each age bin. I will then weight each proportion estimate (within each bin) by the respective population size of that bin and sum those values and divide that by the entire population size. 
 
-```{r, include=TRUE}
+
+  Post-stratification is a statistical technique which allows a model to be used on a new dataset, and allows estimates to be corrected according to their sampling weights. Then, an estimate is calculated for the entire population. The estimate can be calculated for the prediction model, which can be very useful in modeling behaviour or other various outcomes, and determining an estimate to make important future decisions.In my analysis, this allows me to estimate the proportion of voters who will vote for Donald Trump and in the second calculation, the proportion of voters who will vote for Joe Biden.  
+
+  I will be using a post-stratification technique which allows me to use my model on the census dataset to predict estimates for certain groups that I have chosen. I will use the weight of each estimate for each group and determine the population level estimate, and this is very useful to allow a model to be used for prediction purposes and weight each estimate. This means bias will decrease because underrepresented groups will be adjusted for with the sample weight, and also leads to smaller variance. This leads to a more accurate prediction. 
+
+  In this model, first I split the cells by age group, gender, state, race, education, whether Hispanic or not, and whether foreign born or not. I will partition the census data into demographic cells by grouping them based on my predictors which are age group, gender and state.  These groups of these cells allow an estimate for each possible group (each datapoint/row) by using my model to obtain and estimate, and then I weight the estimate by its relative proportion within the whole population and aggregate all estimates to population level estimates. I weight each estimate by its population size of the bin, and find the sum of all these values for each bin. Finally, I divide this summation by the total population count. 
+  
+
+## Grouping the Cells
+
+  I decided to split my cells based on the variables that I used in my model, because they are all extremely significant variables statistically as well as based on real life outcomes. I chose the three most significant variables to group the cells. For example, state is important because it is shown that certain states are more likely to vote for certain parties. The age group is important, because different ages might have different perspectives and would vote based on what issues are important to them. The gender is important because many voters may want to vote based on issues relating to gender such as gender equality, and this would influence voter outcome as well. Thus, my cell groupings are based on age group, gender, and state because I thought these variables were the most significant to group. 
+
+
+```{r, include=F}
 
 # Here I will perform the post-stratification calculation
+#take away new factors
+census_data <- census_data[!(census_data$agegrp=="0-10"),]
+census_data <- census_data[!(census_data$agegrp=="11-17"),]
+census_data <- census_data[!(census_data$agegrp=="95+"),]
+census_data <- census_data[!(census_data$state=="Other"),]
+
+#trump
+
 census_data$logodds_estimate <-
-  model %>%
+  logmodeltrump %>%
   predict(newdata = census_data)
 
 census_data$estimate <-
   exp(census_data$logodds_estimate)/(1+exp(census_data$logodds_estimate))
 
-census_data %>%
+estimatetrump <- census_data %>%
   mutate(alp_predict_prop = estimate*n) %>%
   summarise(alp_predict = sum(alp_predict_prop)/sum(n))
+
+#biden
+census_data$logodds_estimate <-
+  logmodelbiden %>%
+  predict(newdata = census_data)
+
+census_data$estimate <-
+  exp(census_data$logodds_estimate)/(1+exp(census_data$logodds_estimate))
+
+estimatebiden <-  census_data %>%
+  mutate(alp_predict_prop = estimate*n) %>%
+  summarise(alp_predict = sum(alp_predict_prop)/sum(n))
+
+estimatetrump
+estimatebiden
+
+```
+
+# Results
+
+
+
+Here are my model results shown in a condensed format. It is shown in complete form in the appendix. 
+  Table 1-Logistic Model for Vote_Trump
+```{r}
+
+broom::tidy(logmodeltrump)
+```
+
+
+
+
+  Table 2-Logistic Model for Vote_Biden
+```{r}
+broom::tidy(logmodelbiden)
+```
+
+
+My estimate of the proportion of voters in that will vote for Donald Trump is 0.39, thus 39%. The estimate for the proportion of voters that will vote for Joe Biden is 0.388. These numbers are obtained from the post-stratification analysis of the estimate for response variable *vote_trump* and *vote_biden*. These estimates were obtained from my binary logistic regression model, which took into account the variables state, education, gender, race, age group, Hispanic or not, and foreign born or not. 
+
+
+
+
+  Figure 1
+```{r, echo=FALSE,warning=FALSE,  fig.height = 3, fig.width = 3, fig.align = "center"}
+
+
+  survey_data %>% 
+  ggplot(aes(y=vote_trump, x = education)) +
+  geom_boxplot() +ggtitle("Education vs Vote for Trump") +labs(y= "Vote for Trump", x = "Education")
+
+survey_data %>% 
+  ggplot(aes(y=vote_biden, x = education)) +
+  geom_boxplot() +ggtitle("Education vs Vote for Biden") +labs(y= "Vote for Biden", x = "Education")
+
+
 
 
 ```
 
+There are some interesting results obtained while performing exploratory data analysis. While reviewing Figure 1, it seems that all education groups seem to vote for Biden, but the middle school category does not prefer to vote for Trump. 
 
-# Results
 
-Here you will include all results. This includes descriptive statistics, graphs, figures, tables, and model results. Please ensure that everything is well formatted and in a report style. You must also provide an explanation of the results in this section. 
+  Figure 2
+```{r, echo=FALSE,warning=FALSE,  fig.height = 3, fig.width = 3, fig.align = "center"}
 
-Please ensure that everything is well labelled. So if you have multiple histograms and plots, calling them Figure 1, 2, 3, etc. and referencing them as Figure 1, Figure 2, etc. in your report will be expected. The reader should not get lost in a sea of information. Make sure to have the results be clean, well formatted and digestible.
+
+survey_data %>% 
+  ggplot(aes(y=vote_trump, x = Race)) +
+  geom_boxplot() +ggtitle("Race vs Vote for Trump")
+
+survey_data %>% 
+  ggplot(aes(y=vote_biden, x = Race)) +
+  geom_boxplot() +ggtitle("Race vs Vote for Biden")
+```
+
+While analyzing figure 2, it can be seen that Race is quite an important predictor in determining whom one will vote for. It seems that Race is not impacting votes for Biden, but it is very much impacting the votes for Trump. 
+
+  Figure 3
+```{r, echo=FALSE,warning=FALSE,  fig.height = 3, fig.width = 3, fig.align = "center"}
+survey_data %>% 
+  ggplot(aes(y=vote_2020, x = age)) +
+  geom_boxplot() +ggtitle("Age vs Vote 2020")
+```
+
+  While analyzing figure 3, it can be seen that age is impacting one's voting decision. It seems that the younger age groups of 20-40 are unsure, would not vote, or would vote for someone else. The age group of 40-60 are equally spread between voting for Trump or voting for Biden.
+
+
 
 # Discussion
 
@@ -93,8 +218,26 @@ Here we discuss weaknesses of the study, data, analysis, etc. You can also discu
 
 Here you discuss subsequent work to be done after this report. This can include next steps in terms of statistical analysis (perhaps there is a more efficient algorithm available, or perhaps there is a caveat in the data that would allow for some new technique). Future steps should also be specified in terms of the study setting (eg. including a follow-up survey on something, or a subsequent study that would complement the conclusions of your report).
 
+# Appendix
+Here is my full model summary.
+
+  Model 1-Logistic Regression for Vote_Trump
+```{r}
+summary(logmodeltrump)
+
+```
+
+  Model 2-Logistic Regression for Vote_Biden
+```{r}
+
+summary(logmodelbiden)
+```
+
 
 # References
 
+Tausanovitch, Chris and Lynn Vavreck. 2020. Democracy Fund + UCLA Nationscape, October 10-17, 2019 (version 20200814). Retrieved from [https://www.voterstudygroup.org/downloads?key=46a716b2-7321-4fcf-9ee6-8987a584a253].
 
+Steven Ruggles, Sarah Flood, Ronald Goeken, Josiah Grover, Erin Meyer, Jose Pacas and Matthew Sobek. IPUMS USA: Version 10.0 [dataset]. Minneapolis, MN: IPUMS, 2020.
+https://doi.org/10.18128/D010.V10.0
 
