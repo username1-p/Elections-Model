@@ -138,7 +138,8 @@ estimatebiden
 
 
 
-Here are my model results shown in a condensed format. 
+  Here are my model results shown in a condensed format.  
+
   Table 1-Logistic Model for Vote_Trump
 ```{r}
 
@@ -264,3 +265,10 @@ summary(logmodelbiden)
 -  R Core Team (2020). R: A language and environment for statistical
   computing. R Foundation for Statistical Computing, Vienna, Austria. URL
   https://www.R-project.org/.
+  
+- JJ Allaire and Yihui Xie and Jonathan McPherson and Javier Luraschi and Kevin Ushey and Aron Atkins and Hadley Wickham and Joe Cheng and Winston Chang and Richard Iannone (2020). rmarkdown: Dynamic Documents for R. R package version 2.3. URL https://rmarkdown.rstudio.com.
+
+- Yihui Xie and J.J. Allaire and Garrett Grolemund (2018). R Markdown: The
+  Definitive Guide. Chapman and Hall/CRC. ISBN 9781138359338. URL
+  https://bookdown.org/yihui/rmarkdown.
+  
