@@ -30,7 +30,9 @@ The script file includes R scripts that I used to do important coding work befor
 
 Scripts contain R scripts that take inputs and outputs and produce outputs. 
 It contains:
-01-data_cleaning-post-strat1(1).R
+01-data_cleaning-post-strat1(1).R 
+and 
 01-data_Cleaning-survey1.R
+and 
 modeling.R
 
