@@ -3,7 +3,6 @@ title: Predicting the USA 2020 Federal Election
 author: Prinsa Gandhi
 subtitle: A Generalized linear model used to determine the popular vote of the 2020 election. 
 date: November 2, 2020
-bibliography: references.bib
 output: pdf_document
 latex_engine: xelatex
   
@@ -158,13 +157,12 @@ broom::tidy(logmodelbiden)
 My estimate of the proportion of voters in that will vote for Donald Trump is 0.39, thus 39%. The estimate for the proportion of voters that will vote for Joe Biden is 0.388. These numbers are obtained from the post-stratification analysis of the estimate for response variable *vote_trump* and *vote_biden*. These estimates were obtained from my binary logistic regression model, which took into account the variables state, education, gender, race, age group, Hispanic or not, and foreign born or not. 
 
 
-
-
   Figure 1
-```{r, echo=FALSE,warning=FALSE,  fig.height = 3, fig.width = 3, fig.align = "center"}
+```{r, figures-side, fig.show="hold", out.width="50%", warning=FALSE, echo=FALSE}
+par(mar = c(4, 4, .1, .1))
 
 
-  survey_data %>% 
+survey_data %>% 
   ggplot(aes(y=vote_trump, x = education)) +
   geom_boxplot() +ggtitle("Education vs Vote for Trump") +labs(y= "Vote for Trump", x = "Education")
 
@@ -172,17 +170,14 @@ survey_data %>%
   ggplot(aes(y=vote_biden, x = education)) +
   geom_boxplot() +ggtitle("Education vs Vote for Biden") +labs(y= "Vote for Biden", x = "Education")
 
-
-
-
 ```
 
 There are some interesting results obtained while performing exploratory data analysis. While reviewing Figure 1, it seems that all education groups seem to vote for Biden, but the middle school category does not prefer to vote for Trump. 
 
 
   Figure 2
-```{r, echo=FALSE,warning=FALSE,  fig.height = 3, fig.width = 3, fig.align = "center"}
-
+```{r, figures-side2, fig.show="hold", out.width="50%", warning=FALSE, echo=FALSE}
+par(mar = c(4, 4, .1, .1))
 
 survey_data %>% 
   ggplot(aes(y=vote_trump, x = Race)) +
@@ -196,7 +191,8 @@ survey_data %>%
 While analyzing figure 2, it can be seen that Race is quite an important predictor in determining whom one will vote for. It seems that Race is not impacting votes for Biden, but it is very much impacting the votes for Trump. 
 
   Figure 3
-```{r, echo=FALSE,warning=FALSE,  fig.height = 3, fig.width = 3, fig.align = "center"}
+```{r, echo=FALSE, fig.height = 3, fig.width = 3, fig.align = "center"}
+
 survey_data %>% 
   ggplot(aes(y=vote_2020, x = age)) +
   geom_boxplot() +ggtitle("Age vs Vote 2020")
@@ -208,15 +204,27 @@ survey_data %>%
 
 # Discussion
 
-Here you will summarize the previous sections and discuss conclusions drawn from the results. Make sure to elaborate and connect your analysis to the goal of the study.
+
+  The results of this analysis are quite interesting. In summary, the binary logistic regression models are created using the survey dataset. The model predictors are determined after numerous steps such as AIC, BIC, and Exploratory data analysis.  Later, these models are used on the census dataset to create estimates for each group level, and I use the post-stratification technique to determine a population level estimate. 
+
+  Finally, based on my results it is very difficult to accurately predict a winner, because my results have given an estimate of 0.39 of voters in favour of Trump, and 0.388 in favour of Biden. However, since Trump has the higher estimated proportion of voters in his favour, I will predict that Trump will win the election. This is because even small decimal amounts make huge differences in large populations, and my analysis on the census data consisted of a sample of 45,564 observations. Thus, after numerous data analysis, the GLM that I used predicts Trump to win the election. 
+
 
 ## Weaknesses
 
-Here we discuss weaknesses of the study, data, analysis, etc. You can also discuss areas for improvement.
+There are a few weaknesses that affect the results of my study.Firstly, I notice that about 10% of respondents had the response that they were unsure who they were going to vote for, which really affects the outcome variable in my GLM, because there is less data to use for the predictive model. Secondly, there survey dataset has numerous survey responses that would have lead to a far more accurate model. For example, the survey had the questions regarding whom one voted for in 2016, and their vote intention for 2020, as well as numerous policy questions that one may find important.However, I did not use these as predictors for my model, because I wanted to perform post-stratification with variables that were as similar as could be to the census dataset.This lead to a decrease in predictive power for my model. Furthermore, I tried to keep the most significant variables in my model. I decided not to further reduce variables because this was a large dataset, and I did not want to risk over fitting to the data set based on very few predictors, which would lead to a false analysis. 
+
+
 
 ## Next Steps
 
-Here you discuss subsequent work to be done after this report. This can include next steps in terms of statistical analysis (perhaps there is a more efficient algorithm available, or perhaps there is a caveat in the data that would allow for some new technique). Future steps should also be specified in terms of the study setting (eg. including a follow-up survey on something, or a subsequent study that would complement the conclusions of your report).
+
+
+  I believe that the next steps can be to obtain predictions using other tools such as random forest prediction, or other machine learning techniques. This would allow the survey data to be used further with additional important variables. In terms of improving this model, I would try to obtain more census data, with information such as whom one voted for in 2016, or a survey asking about opinions regarding important policies. I would try to use this data to determine if there are different results during post-stratification.
+
+  Additionally, I would compare the actual election results to the results from my prediction. I would perform an analysis using that information. For example, I would try to see which party won majority in each state and compare that to my model coefficients and determine if there were major discrepancies. I would try to do a survey right after this election asking important questions such as "Who did you vote for" and "which state are you from",etc... These results can prove extremely important, because it can be studied and compared to the pre-election survey and determine if there were major discrepancies and a major change in opinions by those who take the survey. This can prove important in trying to predict future election results, because it can help determine the changes in voter behavior. The data can be used during analysis of future elections. 
+
+
 
 # Appendix
 Here is my full model summary.
@@ -236,8 +244,19 @@ summary(logmodelbiden)
 
 # References
 
-Tausanovitch, Chris and Lynn Vavreck. 2020. Democracy Fund + UCLA Nationscape, October 10-17, 2019 (version 20200814). Retrieved from [https://www.voterstudygroup.org/downloads?key=46a716b2-7321-4fcf-9ee6-8987a584a253].
+- Tausanovitch, Chris and Lynn Vavreck. 2020. Democracy Fund + UCLA Nationscape,   October 10-17, 2019 (version 20200814). Retrieved from           [https://www.voterstudygroup.org/downloads?key=46a716b2-7321-4fcf-9ee6-8987a584a253].
 
-Steven Ruggles, Sarah Flood, Ronald Goeken, Josiah Grover, Erin Meyer, Jose Pacas and Matthew Sobek. IPUMS USA: Version 10.0 [dataset]. Minneapolis, MN: IPUMS, 2020.
-https://doi.org/10.18128/D010.V10.0
+- Steven Ruggles, Sarah Flood, Ronald Goeken, Josiah Grover, Erin Meyer, Jose     Pacas and Matthew Sobek. IPUMS USA: Version 10.0 [dataset][usa_00002.dta.gz].   Minneapolis, MN:IPUMS, 2020. https://doi.org/10.18128/D010.V10.0
 
+- Wickham et al., (2019). Welcome to the tidyverse. Journal of Open Source        Software, 4(43), 1686, https://doi.org/10.21105/joss.01686
+  
+- H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag
+  New York, 2016
+
+- Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010). Regularization
+  Paths for Generalized Linear Models via Coordinate Descent. Journal of
+  Statistical Software, 33(1), 1-22. URL http://www.jstatsoft.org/v33/i01/.
+  
+-  R Core Team (2020). R: A language and environment for statistical
+  computing. R Foundation for Statistical Computing, Vienna, Austria. URL
+  https://www.R-project.org/.
