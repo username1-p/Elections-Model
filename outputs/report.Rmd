@@ -138,7 +138,7 @@ estimatebiden
 
 
 
-Here are my model results shown in a condensed format. It is shown in complete form in the appendix. 
+Here are my model results shown in a condensed format. 
   Table 1-Logistic Model for Vote_Trump
 ```{r}
 
@@ -226,18 +226,22 @@ There are a few weaknesses that affect the results of my study.Firstly, I notice
 
 
 
-# Appendix
-Here is my full model summary.
 
-  Model 1-Logistic Regression for Vote_Trump
-```{r}
+
+
+  
+```{r, echo=FALSE, include=FALSE}
+# Appendix
+#Full model summary for both models
+
+#Model 1-Logistic Regression for Vote_Trump
 summary(logmodeltrump)
 
 ```
 
-  Model 2-Logistic Regression for Vote_Biden
-```{r}
+```{r, echo=FALSE, include=FALSE}
 
+#Model 2-Logistic Regression for Vote_Biden
 summary(logmodelbiden)
 ```
 
